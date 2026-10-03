@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="description"
+      content="把收入、支出与内部转账分开记录，对照分类预算查看超支、未预算支出和月内净流入。"
+    />
+    <title>Budget Harbor · AI 小工具</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/data.css" />
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand"><span class="logo">B</span>Budget Harbor</div>
+        <div class="side-intro">
+          <div class="eyebrow">DATA & FINANCE STUDIO</div>
+          <div class="nav-item">月度收支与预算</div>
+        </div>
+        <div class="side-note">
+          把一个想法，变成可以使用的结果。<br />轻量、专注，按你的节奏。
+        </div>
+        <div class="side-bottom">
+          <div class="eyebrow">CONNECTION</div>
+          <label
+            ><span class="sr-only" hidden>运行模式</span
+            ><select id="mode" aria-label="运行模式"></select
+          ></label>
+        </div>
+        <div class="side-footer">
+          DATA EDITION / 09<br />Built for a little more clarity.
+        </div>
+      </aside>
+      <main class="main">
+        <header class="topbar">
+          <span class="crumb">我的工作台 &nbsp; / &nbsp; 月度收支与预算</span
+          ><span class="top-meta"
+            ><i class="dot"></i><span id="connection">正在连接…</span></span
+          >
+        </header>
+        <section class="hero">
+          <div class="eyebrow">GIVE EVERY MONTH A CLEARER PICTURE.</div>
+          <h1>本月花到哪里，还剩多少预算。</h1>
+          <p class="description">
+            把收入、支出与内部转账分开记录，对照分类预算查看超支、未预算支出和月内净流入。
+          </p>
+        </section>
+        <section class="data-layout">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>本月账本</h2>
+              <button id="sample" class="small">示例月份</button>
+            </div>
+            <p class="source-note">人工构造收支 · 本地保存 · 无银行连接</p>
+            <form id="budget-form">
+              <div
+                class="wide-controls"
+                style="grid-template-columns: 1fr 1fr; margin-top: 0"
+              >
+                <label>分析月份<input id="month" type="month" required /></label
+                ><label
+                  >统一币种<select id="currency">
+                    <option>CNY</option>
+                    <option>USD</option>
+                    <option>EUR</option>
+                  </select></label
+                >
+              </div>
+              <label
+                >收支记录 CSV<textarea
+                  id="transactions"
+                  rows="9"
+                  maxlength="225000"
+                  required
+                  spellcheck="false"
+                  placeholder="id,date,type,category,amount,note"
+                ></textarea></label
+              ><input
+                id="transactions-file"
+                type="file"
+                class="upload-input"
+                accept=".csv"
+                aria-label="导入收支CSV"
+              /><label style="margin-top: 16px"
+                >月度分类预算 CSV<textarea
+                  id="budgets"
+                  rows="6"
+                  maxlength="25000"
+                  spellcheck="false"
+                  placeholder="month,category,amount"
+                ></textarea></label
+              ><input
+                id="budgets-file"
+                type="file"
+                class="upload-input"
+                accept=".csv"
+                aria-label="导入预算CSV"
+              /><button id="analyze" class="primary" style="margin-top: 18px">
+                查看本月收支 ↗
+              </button>
+            </form>
+            <details>
+              <summary>快速记一笔</summary>
+              <form id="entry-form">
+                <div
+                  class="wide-controls"
+                  style="grid-template-columns: 1fr 1fr"
+                >
+                  <label
+                    >日期<input id="entry-date" type="date" required /></label
+                  ><label
+                    >类型<select id="entry-type">
+                      <option value="expense">支出</option>
+                      <option value="income">收入</option>
+                      <option value="transfer">内部转账</option>
+                    </select></label
+                  ><label
+                    >分类<input id="category" maxlength="60" required /></label
+                  ><label
+                    >金额<input
+                      id="amount"
+                      type="number"
+                      min="0.01"
+                      max="1000000000"
+                      step="0.01"
+                      required
+                  /></label>
+                </div>
+                <label>备注<input id="note" maxlength="500" /></label
+                ><button id="add-entry" class="small" style="margin-top: 12px">
+                  加入记录
+                </button>
+              </form>
+            </details>
+            <div class="divider"></div>
+            <div class="toolbar">
+              <button id="save-local" class="small">保存到浏览器</button
+              ><button id="backup" class="small">导出输入备份</button>
+            </div>
+            <label
+              >恢复输入备份<input
+                id="restore"
+                type="file"
+                class="upload-input"
+                accept=".json"
+            /></label>
+            <p class="hint">
+              内部转账只录一条汇总记录，不作为收入或支出。保存当前输入后才会在下次打开时恢复。
+            </p>
+          </section>
+          <div>
+            <div id="metrics" class="metric-grid"></div>
+            <section class="panel data-panel">
+              <div class="result-title">
+                <h2>分类预算与实际支出</h2>
+                <span id="month-label" class="chip">MONTHLY BUDGET</span>
+              </div>
+              <div id="budget-chart" class="chart-wrap">
+                <div class="empty">
+                  <div class="symbol">▥</div>
+                  <h3>让收支有据可查</h3>
+                  <p>载入示例，查看预算差额与未预算支出。</p>
+                </div>
+              </div>
+              <div id="categories" class="table-wrap"></div>
+            </section>
+            <section class="panel data-panel">
+              <h2>月内累计净流入</h2>
+              <div id="flow-chart" class="chart-wrap"></div>
+              <p class="hint">
+                收入减支出，从月初 0 开始累计；不是银行账户余额。
+              </p>
+              <p id="transfer-info" class="hint"></p>
+            </section>
+            <section class="panel data-panel">
+              <h2>所选月份的收支明细</h2>
+              <div id="transactions-table" class="table-wrap"></div>
+            </section>
+            <section class="panel data-panel">
+              <h2>月度解读</h2>
+              <p id="warnings" class="warning-list"></p>
+              <div id="meta" class="meta"></div>
+              <div id="insight" class="insight">
+                金额精确到分，先核对收支，再看预算。
+              </div>
+              <div id="exports" class="toolbar" hidden>
+                <button id="export-html" class="primary">导出 HTML 报告</button
+                ><button id="export-csv" class="small">导出收支 CSV</button
+                ><button id="export-json" class="small">导出分析 JSON</button>
+              </div>
+            </section>
+          </div>
+        </section>
+        <footer class="footer">
+          <span>Budget Harbor · 独立轻量实现</span
+          ><span
+            >灵感来自
+            <a
+              href="https://github.com/actualbudget/actual"
+              target="_blank"
+              rel="noopener noreferrer"
+              >actualbudget/actual</a
+            >
+            &nbsp; / &nbsp; 09 OF 10</span
+          >
+        </footer>
+      </main>
+    </div>
+    <div id="toast" role="status" aria-live="polite" hidden></div>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
