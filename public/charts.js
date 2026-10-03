@@ -87,7 +87,8 @@ export function lines(series, { label = "趋势图", format = num } = {}) {
       (_, i) =>
         i === 0 ||
         i === labels.length - 1 ||
-        i % Math.max(1, Math.ceil(labels.length / 5)) === 0,
+        (i % Math.max(1, Math.ceil(labels.length / 5)) === 0 &&
+          i < labels.length - 1 - Math.ceil(labels.length / 5) / 2),
     )
     .map((v) => {
       const i = labels.indexOf(v);
